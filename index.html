@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ru">
+<head>
+	<title>Блоксема - редактирование</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="css/blocks.css" />
+	<link rel="stylesheet" href="css/jquery.window.css" />
+	<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="js/jquery.extend.js"></script>
+	<script src="js/jquery.dnd.js"></script>
+	<script src="js/arrows.1.0.0.js"></script>
+	<script src="js/jquery.blocks.js"></script>
+	<script src="js/jquery.window.js"></script>
+</head>
+<body>
+
+	<div id="blocksframe"></div>
+	<div id='functionkey'>
+		<input type='button' name='add_rectangle' value='Добавить прямоугольник' />
+		<input type='button' name='add_ellipse' value='Добавить эллипс' />
+		<input type='button' name='add_dot' value='Добавить точку' />
+		<br/>
+		<input type='button' name='add_line' value='Добавить линию' />
+		<input type='button' name='add_arrow' value='Добавить стрелку' />
+		<br/>
+		<input type='button' name='save' value='Сохранить' />
+		<input type='button' name='load' value='Загрузить' />
+		<br/>
+		<input type='button' name='load_demo' value='Загрузить Demo' />
+		<br/>
+		<label><input type='checkbox' name='change_grid' value='1' /> Включить сетку</label>
+		<br/>
+		<br/>
+		<div class='help'></div>
+	</div>
+
+	<script type='text/javascript'>
+	$(document).ready(function() {
+		blocks.init("#blocksframe", true);
+		blocks.dblclick = "blockEdit";
+		blocks.debug(true);
+
+		/*
+		blocks.addblock("rectangle", { "id": "block_0", "text": "Start", "width": 200, "height": 50, "left": 200, "top": 50 });
+
+		blocks.addblock("dot", { "id": "dot_0", "left": 295, "top": 150 });
+		blocks.addblock("dot", { "id": "dot_1", "left": 120, "top": 150 });
+		blocks.addblock("dot", { "id": "dot_2", "left": 470, "top": 150 });
+
+		blocks.addblock("rectangle", { "id": "block_1", "text": "Блок 1", "left": 100, "top": 250 });
+		blocks.addblock("rectangle", { "id": "block_2", "text": "Блок 2", "left": 450, "top": 250 });
+
+		blocks.addarrow("line", "block_0", "dot_0");
+		blocks.addarrow("line", "dot_0", "dot_1");
+		blocks.addarrow("line", "dot_0", "dot_2");
+		blocks.addarrow("arrow", "dot_1", "block_1");
+		blocks.addarrow("arrow", "dot_2", "block_2");
+		
+		blocks.drag();
+		*/
+
+		/* fail - rhombus not avalible now
+		blocks.addblock("rhombus", { "id": "block_1", "text": "Блок 1", "left": 100, "top": 250, "width": 150, "height": 50 });
+		blocks.addblock("rectangle", { "id": "block_2", "text": "Блок 2", "left": 450, "top": 250 });
+		blocks.addarrow("line", "block_1", "block_2");
+		blocks.drag();
+		*/
+
+		$("input[name='add_rectangle']").on("click", function() {
+			jWindow.open().content(
+				 "<div>Ширина: <input type='text' name='new_width' value='100' /></div>"
+				+"<div>Высота: <input type='text' name='new_height' value='50' /></div>"
+				+"<div>Текст:  <input type='text' name='new_text' value='Блок' /></div>"
+				+"<div><input type='button' name='add' value='Создать' /></div>"
+				);
+
+			$("input[name='add']").on("click", function() {
+				new_width  = $("input[name='new_width']").val();
+				new_height = $("input[name='new_height']").val();
+
+				var coords = blocks.getnextcoords(new_width, new_height);
+
+				blocks.addblock("rectangle", {
+					"text":   $("input[name='new_text']").val(),
+					"width":  new_width,
+					"height": new_height,
+					"left":   coords.left,
+					"top":    coords.top
+				});
+				blocks.drag();
+				jWindow.close();
+			});
+		});
+
+		$("input[name='add_ellipse']").on("click", function() {
+			jWindow.open().content(
+				 "<div>Ширина: <input type='text' name='new_width' value='100' /></div>"
+				+"<div>Высота: <input type='text' name='new_height' value='50' /></div>"
+				+"<div>Текст:  <input type='text' name='new_text' value='Блок' /></div>"
+				+"<div><input type='button' name='add' value='Создать' /></div>"
+				);
+
+			$("input[name='add']").on("click", function() {
+				new_width  = $("input[name='new_width']").val();
+				new_height = $("input[name='new_height']").val();
+
+				var coords = blocks.getnextcoords(new_width, new_height);
+
+				blocks.addblock("ellipse", {
+					"text":   $("input[name='new_text']").val(),
+					"width":  new_width,
+					"height": new_height,
+					"left":   coords.left,
+					"top":    coords.top
+				});
+				blocks.drag();
+				jWindow.close();
+			});
+		});
+
+		$("input[name='add_dot']").on("click", function() {
+			var coords = blocks.getnextcoords(10, 10);
+
+			blocks.addblock("dot", {
+				"left": coords.left,
+				"top": coords.top
+			});
+			blocks.drag();
+		});
+
+		$("input[name='add_line']").on("click", function() {
+			line_from = "";
+			line_to = "";
+			$(".help").html("Кликните сначала на элемент с которого начертить линию, потом на элемент до которого линия");
+
+			$("#blocksframe").on("click", "div.drag", function() {
+				drawline($(this).attr("id"), function() {
+					$(".help").html("");
+				});
+			});
+		});
+
+		$("input[name='add_arrow']").on("click", function() {
+			arrow_from = "";
+			arrow_to = "";
+			$(".help").html("Кликните сначала на элемент с которого начертить стрелку, потом на элемент до которого стрелка");
+
+			$("#blocksframe").on("click", "div.drag", function() {
+				drawarrow($(this).attr("id"), function() {
+					$(".help").html("");
+				});
+			});
+		});
+
+		$("input[name='save']").on("click", function() {
+			jWindow.open().content("<textarea style='width: 100%; height: 400px;' name='to_save'>"+blocks.save()+"</textarea>");
+			$("textarea[name='to_save']").focus();
+		});
+
+		$("input[name='load']").on("click", function() {
+			jWindow.open().content("<textarea style='width: 100%; height: 400px;' name='to_load'></textarea><input type='button' name='app' value='Загрузить' />");
+			$("input[name='app']").on("click", function() {
+				blocks.load($("textarea[name='to_load']").val());
+				jWindow.close();
+			})
+		});
+
+		$("input[name='load_demo']").on("click", function() {
+			blocks.load($(".demo").html());
+		});
+
+		$("input[name='change_grid']").on("change", function() {
+			if ($(this).is(":checked"))
+				blocks.grid(true);
+			else
+				blocks.grid(false);
+		});
+	});
+	
+	function drawline(id, callback) {
+		if (line_from == "") {
+			line_from = id;
+			return true;
+		}
+
+		if (line_to == "") {
+			line_to = id;
+			blocks.addarrow("line", line_from, line_to);
+			$("#blocksframe").off("click", "div.drag");
+			callback();
+			return true;
+		}
+	}
+
+	function drawarrow(id, callback) {
+		if (arrow_from == "") {
+			arrow_from = id;
+			return true;
+		}
+
+		if (arrow_to == "") {
+			arrow_to = id;
+			blocks.addarrow("arrow", arrow_from, arrow_to);
+			$("#blocksframe").off("click", "div.drag");
+			callback();
+			return true;
+		}
+	}
+
+	function blockEdit(id) {
+		jWindow.open().content(
+				 "<div>Ширина: <input type='text' name='new_width' value='"+$("#"+id).getCss("width")+"' /></div>"
+				+"<div>Высота: <input type='text' name='new_height' value='"+$("#"+id).getCss("height")+"' /></div>"
+				+"<div>Текст:  <input type='text' name='new_text' value='"+$("#"+id).children(".content").html()+"' /></div>"
+				+"<div><input type='button' name='edit' value='Изменить' /></div>"
+				);
+
+		$("input[name='edit']").on("click", function() {
+			new_width  = $("input[name='new_width']").val();
+			new_height = $("input[name='new_height']").val();
+			new_text   = $("input[name='new_text']").val();
+
+			$("#"+id).css("width", new_width);
+			$("#"+id).css("height", new_height);
+			$("#"+id).children(".content").html(new_text);
+
+			blocks.update(id, {
+				"width":  new_width,
+				"height": new_height,
+				"text":   new_text
+			});
+			
+			jWindow.close();
+		});
+	}
+	</script>
+
+	<div class='demo'>
+		{"blocks":{"block_0":{"id":"block_0","type":"rectangle","width":200,"height":50,"left":200,"top":43,"text":"Start","addclass":" drag drag drag"},"dot_0":{"id":"dot_0","type":"dot","width":10,"height":10,"left":295,"top":150,"text":"","addclass":" drag drag drag"},"dot_1":{"id":"dot_1","type":"dot","width":10,"height":10,"left":120,"top":150,"text":"","addclass":" drag drag drag"},"dot_2":{"id":"dot_2","type":"dot","width":10,"height":10,"left":470,"top":150,"text":"","addclass":" drag drag drag"},"block_1":{"id":"block_1","type":"rectangle","width":50,"height":50,"left":100,"top":250,"text":"Блок 1","addclass":" drag drag drag"},"block_2":{"id":"block_2","type":"rectangle","width":50,"height":50,"left":450,"top":250,"text":"Блок 2","addclass":" drag drag drag"}},"arrows":{"line_block_0_dot_0":{"arrow_type":"line","block_from":"block_0","block_to":"dot_0"},"line_dot_0_dot_1":{"arrow_type":"line","block_from":"dot_0","block_to":"dot_1"},"line_dot_0_dot_2":{"arrow_type":"line","block_from":"dot_0","block_to":"dot_2"},"arrow_dot_1_block_1":{"arrow_type":"arrow","block_from":"dot_1","block_to":"block_1"},"arrow_dot_2_block_2":{"arrow_type":"arrow","block_from":"dot_2","block_to":"block_2"}}}
+	</div>
+</body>
+</html>

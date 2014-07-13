@@ -1,0 +1,18 @@
+.jfill {
+	background-color: #A1A1A1;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	opacity: 0.5;
+}
+
+.jwindow {
+	position: absolute;
+	top: 50px;
+	left: 400px;
+	width: 400px;
+	height: auto;
+	padding: 20px;
+	background-color: #F1F1F1;
+}
